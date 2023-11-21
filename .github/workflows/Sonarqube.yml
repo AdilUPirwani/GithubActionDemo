@@ -16,18 +16,69 @@ on:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
+
+env: 
+   APPLICATION_NAME: GithubActionDemo
+   SOLUTION_NAME: GithubActionDemo
+   WORKER_NAME: Worker
+   SONARQUBE_TEST_REPORT: /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
     
 jobs:
   build:
     name: Build and analyze
     runs-on: windows-latest
+    
     steps:
       - uses: actions/checkout@v3
         with: 
             fetch_depth: 0
-            
+    
       - name: Set code coverage tool output
         if: ${{ github.event.inputs.codecoveragetool == 'dotnet-coverage' || github.event.inputs.codecoveragetool == '' }}
         run: |
           echo "Here"
+          
+      - name: Install SonarQube scanner
+        run: dotnet tool install --global dotnet-sonarscanner
+      
+      # Depending in the tool selected we install, dotnet-coverage, or dotCover or Coverlet
+      - name: Install dotnet-coverage tool
+        if: ${{ github.event.inputs.codecoveragetool == 'dotnet-coverage' || github.event.inputs.codecoveragetool == '' }}
+        run: |
+          echo "SONARQUBE_TEST_REPORT=/d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml" >> $GITHUB_ENV
+          dotnet tool install --global dotnet-coverage 
+
+      - name: Install dotCover tool
+        if: ${{ github.event.inputs.codecoveragetool == 'dotCover' }}
+        run: |
+          echo "SONARQUBE_TEST_REPORT=/d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html" >> $GITHUB_ENV
+          dotnet tool install --global JetBrains.dotCover.GlobalTool
+
+      - name: Install Coverlet tool
+        if: ${{ github.event.inputs.codecoveragetool == 'coverlet' }}
+        run: |
+          echo "SONARQUBE_TEST_REPORT=/d:sonar.cs.opencover.reportsPaths=coverage.xml" >> $GITHUB_ENV
+          dotnet tool install --global coverlet.console
+
+      - name: Start SonarScan
+        run : dotnet sonarscanner begin /k:"AdilUPirwani_GithubActionDemo" /o:"adilupirwani" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.verbose=true ${{ env.SONARQUBE_TEST_REPORT }}
+      
+      - name: Dotnet Build
+        run: dotnet build src/ -c Release --no-incremental
+
+      # Run the test command and collect the report
+      - name: Generate and collect unit tests coverage report [dotnet-coverage]
+        if: ${{ github.event.inputs.codecoveragetool == 'dotnet-coverage' || github.event.inputs.codecoveragetool == '' }}
+        run: dotnet-coverage collect "dotnet test ${{ github.workspace }}/src/${{ env.SOLUTION_NAME }}.sln -c Release --no-restore" -f xml -o "coverage.xml"
+          
+      - name: Generate and collect unit tests coverage report [dotCover]
+        if: ${{ github.event.inputs.codecoveragetool == 'dotCover' }} 
+        run: dotnet dotcover test ${{ github.workspace }}/src/${{ env.SOLUTION_NAME }}.sln -c Release --no-restore --dcReportType=HTML
+
+      - name: Generate and collect unit tests coverage report [Coverlet]
+        if: ${{ github.event.inputs.codecoveragetool == 'coverlet' }}
+        run: coverlet ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/bin/Release/net6.0/Basecone.${{ env.APPLICATION_NAME }}.${{ env.WORKER_NAME }}.UnitTests.dll --target "dotnet" --targetargs 'test ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/${{ env.WORKER_NAME }}.UnitTests.csproj -c Release --no-restore --collect:"XPlat Code Coverage"' -f=opencover -o="coverage.xml"
+
+      - name: Stop SonarQube scanner
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"  
      
