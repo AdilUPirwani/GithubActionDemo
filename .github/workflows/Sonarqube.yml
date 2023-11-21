@@ -86,5 +86,5 @@ jobs:
         run: coverlet ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/bin/Release/net6.0/Basecone.${{ env.APPLICATION_NAME }}.${{ env.WORKER_NAME }}.UnitTests.dll --target "dotnet" --targetargs 'test ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/${{ env.WORKER_NAME }}.UnitTests.csproj -c Release --no-restore --collect:"XPlat Code Coverage"' -f=opencover -o="coverage.xml"
 
       - name: Stop SonarQube scanner
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"  
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"  
      
