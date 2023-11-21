@@ -27,6 +27,7 @@ jobs:
             fetch_depth: 0
             
       - name: Set code coverage tool output
+        if: ${{ github.event.inputs.codecoveragetool == 'dotnet-coverage' || github.event.inputs.codecoveragetool == '' }}
         run: |
-          echo ${{ github.event.inputs.codecoveragetool }}
+          echo "Here"
      
