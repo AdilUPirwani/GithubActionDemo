@@ -64,16 +64,16 @@ jobs:
         run : dotnet sonarscanner begin /k:"AdilUPirwani_GithubActionDemo" /o:"adilupirwani" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.verbose=true ${{ env.SONARQUBE_TEST_REPORT }}
       
       - name: Dotnet Build
-        run: dotnet build src/ -c Release --no-incremental
+        run: dotnet build -c Release --no-incremental
 
       # Run the test command and collect the report
       - name: Generate and collect unit tests coverage report [dotnet-coverage]
         if: ${{ github.event.inputs.codecoveragetool == 'dotnet-coverage' || github.event.inputs.codecoveragetool == '' }}
-        run: dotnet-coverage collect "dotnet test ${{ github.workspace }}/src/${{ env.SOLUTION_NAME }}.sln -c Release --no-restore" -f xml -o "coverage.xml"
+        run: dotnet-coverage collect "dotnet test ${{ github.workspace }}/${{ env.SOLUTION_NAME }}.sln -c Release --no-restore" -f xml -o "coverage.xml"
           
       - name: Generate and collect unit tests coverage report [dotCover]
         if: ${{ github.event.inputs.codecoveragetool == 'dotCover' }} 
-        run: dotnet dotcover test ${{ github.workspace }}/src/${{ env.SOLUTION_NAME }}.sln -c Release --no-restore --dcReportType=HTML
+        run: dotnet dotcover test ${{ github.workspace }}/${{ env.SOLUTION_NAME }}.sln -c Release --no-restore --dcReportType=HTML
 
       - name: Generate and collect unit tests coverage report [Coverlet]
         if: ${{ github.event.inputs.codecoveragetool == 'coverlet' }}
