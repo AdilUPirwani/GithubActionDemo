@@ -18,7 +18,8 @@ on:
     types: [opened, synchronize, reopened]
     
 jobs:
-  SonarQube-Example:
+  build:
+    name: Build and analyze
     runs-on: windows-latest
     steps:
       - name: checkout code
