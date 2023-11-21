@@ -6,7 +6,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - GitActionExample
 on:
   push:
     branches:
-      - master
+      - feature/master
   workflow_dispatch:
 
 jobs:
