@@ -6,7 +6,7 @@ on:
         type: choice
         description: Code Coverage Tool
         required: true
-        default: dotnet-coverage
+        default: dotCover
         options:
           - dotnet-coverage
           - dotCover
