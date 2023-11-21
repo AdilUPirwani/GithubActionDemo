@@ -1,25 +1,31 @@
 name: SonarCloud
 on:
+  workflow_dispatch:
+    inputs:
+      codecoveragetool:
+        type: choice
+        description: Code Coverage Tool
+        required: true
+        default: dotnet-coverage
+        options:
+          - dotnet-coverage
+          - dotCover
+          - coverlet
   push:
     branches:
       - master
   pull_request:
     types: [opened, synchronize, reopened]
+    
 jobs:
-  build:
-    name: Build and analyze
+  SonarQube-Example:
+    name: SonarQube Setup Example
     runs-on: windows-latest
     steps:
+      - name: checkout code
       - uses: actions/checkout@v3
         with: 
             fetch_depth: 0
-      - name: Sonarcloud Scan
-        uses: sonarsource/SonarCloud@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with: 
-          args: >
-              -Dsonar.organization=AdilUPirwani
-              -Dsonar.projectkey=GithubActionDemo
-              -Dsonar.python.coverage.reportPaths=coverage.xml
+      - name: Build & Check
+      - run: echo ${{ github.event.inputs.codecoveragetool }}
+     
