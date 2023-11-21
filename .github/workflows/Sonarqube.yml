@@ -26,6 +26,9 @@ jobs:
       - uses: actions/checkout@v3
         with: 
             fetch_depth: 0
-      - name: Build & Check
-      - run: echo ${{ github.event.inputs.codecoveragetool }}
+      - name: Set code coverage tool output
+        id: code-coverage-tool
+        run: |
+          CODE_COVERAGE_TOOL_NAME=${{ github.event.inputs.codecoveragetool }}
+          echo "value=${CODE_COVERAGE_TOOL_NAME:-"dotnet-coverage"}" >> $GITHUB_OUTPUT
      
