@@ -83,7 +83,12 @@ jobs:
 
       - name: Generate and collect unit tests coverage report [Coverlet]
         if: ${{ github.event.inputs.codecoveragetool == 'coverlet' }}
-        run: coverlet ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/bin/Release/net6.0/Basecone.${{ env.APPLICATION_NAME }}.${{ env.WORKER_NAME }}.UnitTests.dll --target "dotnet" --targetargs 'test ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/${{ env.WORKER_NAME }}.UnitTests.csproj -c Release --no-restore --collect:"XPlat Code Coverage"' -f=opencover -o="coverage.xml"
+        run: coverlet .\${{ env.SOLUTION_NAME }}.Tests\bin\Debug\net6.0\${{ env.SOLUTION_NAME }}.Tests.dll
+                 --target "dotnet" 
+                 --targetargs "test --no-build"
+                 -f=opencover 
+                 -o="coverage.xml"
+        # coverlet ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/bin/Release/net6.0/Basecone.${{ env.APPLICATION_NAME }}.${{ env.WORKER_NAME }}.UnitTests.dll --target "dotnet" --targetargs 'test ${{ github.workspace }}/test/${{ env.WORKER_NAME }}.UnitTests/${{ env.WORKER_NAME }}.UnitTests.csproj -c Release --no-restore --collect:"XPlat Code Coverage"' -f=opencover -o="coverage.xml"
 
       - name: Stop SonarQube scanner
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"  
